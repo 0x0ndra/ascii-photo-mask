@@ -9,7 +9,7 @@ import tempfile
 import os
 import base64
 from pathlib import Path
-from ascii_art import ASCIIPhotoMask, Config
+from ascii_art import ASCIIPhotoMask, Config, CharacterSets
 
 
 def generate_ascii_art(
@@ -19,7 +19,8 @@ def generate_ascii_art(
     brightness: float,
     contrast: float,
     randomize: bool,
-    bold: bool
+    bold: bool,
+    charset: str
 ):
     """
     Generate ASCII photo mask from uploaded image.
@@ -32,6 +33,7 @@ def generate_ascii_art(
         contrast: Contrast multiplier
         randomize: Enable randomization for organic look
         bold: Enable bold characters
+        charset: Character set name (e.g., 'ascii', 'blocks', 'emoji_faces')
 
     Returns:
         Path to generated ASCII art image
@@ -44,6 +46,10 @@ def generate_ascii_art(
         return None
 
     try:
+        # Get character set
+        char_sets = CharacterSets.get_all_sets()
+        char_set = char_sets.get(charset, CharacterSets.ASCII_STANDARD)
+
         # Create configuration
         config = Config(
             char_width=char_width,
@@ -52,6 +58,8 @@ def generate_ascii_art(
             contrast_multiplier=contrast,
             enable_randomization=randomize,
             bold_enabled=bold,
+            char_set=char_set,
+            charset_name=charset,  # Set charset name for font selection
         )
 
         # Create generator
@@ -574,6 +582,17 @@ with gr.Blocks(title="ASCII Photo Mask - Transform Photos into Art", theme=theme
                 preset_medium = gr.Button("Medium", size="sm", variant="secondary")
                 preset_bold = gr.Button("Bold", size="sm", variant="secondary")
 
+            # Character Style Selection
+            gr.Markdown("### Character Style")
+            charset_choices = [(CharacterSets.get_set_description(name), name)
+                             for name in sorted(CharacterSets.get_all_sets().keys())]
+            charset = gr.Dropdown(
+                choices=charset_choices,
+                value="ascii",
+                label="Character Set",
+                info="Choose the characters used to create the art"
+            )
+
             # Settings
             with gr.Accordion("Advanced Settings", open=False):
                 char_width = gr.Slider(
@@ -675,7 +694,8 @@ with gr.Blocks(title="ASCII Photo Mask - Transform Photos into Art", theme=theme
             brightness,
             contrast,
             randomize,
-            bold
+            bold,
+            charset
         ],
         outputs=image_output
     )

@@ -15,12 +15,100 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 
 
+class CharacterSets:
+    """Collection of Unicode character sets for different visual styles."""
+
+    # Default ASCII set (darkest to lightest)
+    ASCII_STANDARD = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+
+    # Block characters (darkest to lightest)
+    BLOCKS = "█▓▒░ "
+
+    # Box drawing characters
+    BOX_DRAWING = "╋╬╪╫┼═║│─┌┐└┘├┤┬┴╔╗╚╝╠╣╦╩ "
+
+    # Cyrillic (Russian alphabet)
+    CYRILLIC = "ЖФЮЯБВГДЕЁЗИЙКЛМНОПРСТУХЦЧШЩЪЫЬЭ "
+
+    # Chinese characters (selected for visual variety)
+    CHINESE = "龍鳳馬書畫花山水木林森田目耳手足心月日星雲雨風雪 "
+
+    # Japanese Hiragana
+    HIRAGANA = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん "
+
+    # Japanese Katakana
+    KATAKANA = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン "
+
+    # Mathematical symbols
+    MATH = "∮∯∰∱∲∳∫∬∭∑∏∐√∛∜∝∞∟∠∡∢∴∵∶∷ "
+
+    # Arrows
+    ARROWS = "⇐⇑⇒⇓⇔⇕⇖⇗⇘⇙←↑→↓↔↕↖↗↘↙↚↛↜↝↞↟↠↡↢↣ "
+
+    # Geometric shapes (darkest to lightest)
+    SHAPES = "●◆■▲▼◀▶◉◈◇○◊□△▽◁▷☆★ "
+
+    # Playing cards
+    CARDS = "♠♣♥♦ "
+
+    # Music notes
+    MUSIC = "♪♫♬♭♮♯𝄞𝄢𝄡𝄠 "
+
+    # Stars and sparkles
+    STARS = "✦✧✨✩✪✫✬✭✮✯✰★☆⋆∗∘∙ "
+
+    @staticmethod
+    def get_all_sets() -> dict:
+        """
+        Get all available character sets.
+
+        Returns:
+            Dictionary mapping set names to character strings
+        """
+        return {
+            "ascii": CharacterSets.ASCII_STANDARD,
+            "blocks": CharacterSets.BLOCKS,
+            "box": CharacterSets.BOX_DRAWING,
+            "cyrillic": CharacterSets.CYRILLIC,
+            "chinese": CharacterSets.CHINESE,
+            "hiragana": CharacterSets.HIRAGANA,
+            "katakana": CharacterSets.KATAKANA,
+            "math": CharacterSets.MATH,
+            "arrows": CharacterSets.ARROWS,
+            "shapes": CharacterSets.SHAPES,
+            "cards": CharacterSets.CARDS,
+            "music": CharacterSets.MUSIC,
+            "stars": CharacterSets.STARS,
+        }
+
+    @staticmethod
+    def get_set_description(name: str) -> str:
+        """Get human-readable description of a character set."""
+        descriptions = {
+            "ascii": "Standard ASCII characters (default)",
+            "blocks": "Unicode block elements █▓▒░",
+            "box": "Box-drawing characters ╔═╗║",
+            "cyrillic": "Cyrillic alphabet АБВГД",
+            "chinese": "Chinese characters 龍鳳馬",
+            "hiragana": "Japanese Hiragana あいうえお",
+            "katakana": "Japanese Katakana アイウエオ",
+            "math": "Mathematical symbols ∫∑∏√",
+            "arrows": "Arrow symbols ←↑→↓",
+            "shapes": "Geometric shapes ●◆■",
+            "cards": "Playing card suits ♠♣♥♦",
+            "music": "Musical notation ♪♫♬",
+            "stars": "Stars and sparkles ✨★☆",
+        }
+        return descriptions.get(name, name)
+
+
 @dataclass
 class Config:
     """Configuration for ASCII art generation."""
 
     # Character settings
     char_set: str = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+    charset_name: str = "ascii"  # Name of the character set (for font selection)
     char_width: int = 80
     font_size: int = 25
 
@@ -48,6 +136,42 @@ class Config:
 
 class FontManager:
     """Manages font loading with fallback support across platforms."""
+
+    @staticmethod
+    def get_font_for_charset(charset_name: str) -> Tuple[Optional[str], dict]:
+        """
+        Get the optimal font for a specific character set.
+
+        Args:
+            charset_name: Name of the character set (e.g., 'chinese', 'hiragana')
+
+        Returns:
+            Tuple of (font_path, font_kwargs) or (None, {}) if no font found
+        """
+        # Special fonts for CJK character sets
+        cjk_fonts = {
+            "chinese": [
+                ("/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc", {}),
+                ("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", {}),
+            ],
+            "hiragana": [
+                ("/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf", {}),
+                ("/usr/share/fonts/truetype/fonts-japanese-gothic.ttf", {}),
+            ],
+            "katakana": [
+                ("/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf", {}),
+                ("/usr/share/fonts/truetype/fonts-japanese-gothic.ttf", {}),
+            ],
+        }
+
+        # Check if this charset needs a special font
+        if charset_name in cjk_fonts:
+            for font_path, kwargs in cjk_fonts[charset_name]:
+                if Path(font_path).exists():
+                    return font_path, kwargs
+
+        # Fall back to default font candidates
+        return FontManager.find_available_font()
 
     @staticmethod
     def get_font_candidates() -> List[Tuple[str, str, dict]]:
@@ -97,18 +221,29 @@ class FontManager:
         return None, {}
 
     @staticmethod
-    def load_fonts(base_size: int, size_range: Tuple[float, float] = (1.0, 1.0)) -> List[ImageFont.FreeTypeFont]:
+    def load_fonts(
+        base_size: int,
+        size_range: Tuple[float, float] = (1.0, 1.0),
+        font_path: Optional[str] = None,
+        font_kwargs: Optional[dict] = None
+    ) -> List[ImageFont.FreeTypeFont]:
         """
         Load multiple font sizes for variation.
 
         Args:
             base_size: Base font size in pixels
             size_range: Tuple of (min_multiplier, max_multiplier) for size variation
+            font_path: Optional specific font path (if None, auto-detect)
+            font_kwargs: Optional font kwargs (if None, use empty dict)
 
         Returns:
             List of loaded fonts (at least one)
         """
-        font_path, font_kwargs = FontManager.find_available_font()
+        # Use provided font or auto-detect
+        if font_path is None:
+            font_path, font_kwargs = FontManager.find_available_font()
+        elif font_kwargs is None:
+            font_kwargs = {}
 
         if not font_path:
             return [ImageFont.load_default()]
@@ -254,9 +389,12 @@ class ASCIIPhotoMask:
         print(f"Creating ASCII art: {self.config.char_width}x{char_height} characters")
         print(f"Output size: {output_width}x{output_height} pixels")
 
+        # Get appropriate font for this character set
+        font_path, font_kwargs = FontManager.get_font_for_charset(self.config.charset_name)
+
         # Load fonts
         size_range = self.config.random_size_range if self.config.enable_randomization else (1.0, 1.0)
-        fonts = FontManager.load_fonts(self.config.font_size, size_range)
+        fonts = FontManager.load_fonts(self.config.font_size, size_range, font_path, font_kwargs)
 
         # Prepare base image
         img_resized = ImageProcessor.load_and_resize(
@@ -378,6 +516,7 @@ Presets:
     parser.add_argument(
         'input',
         type=str,
+        nargs='?',  # Make optional for --list-charsets
         help='Input image file path'
     )
 
@@ -428,10 +567,25 @@ Presets:
         help='Disable bold effect on characters'
     )
 
+    # Character set selection
+    available_sets = list(CharacterSets.get_all_sets().keys())
+    parser.add_argument(
+        '--charset',
+        type=str,
+        choices=available_sets,
+        help='Character set preset (e.g., blocks, emoji_faces, chinese). Use --list-charsets to see all.'
+    )
+
+    parser.add_argument(
+        '--list-charsets',
+        action='store_true',
+        help='List all available character sets with descriptions and exit'
+    )
+
     parser.add_argument(
         '--chars',
         type=str,
-        help='Custom character set (darkest to lightest)'
+        help='Custom character set string (darkest to lightest). Overrides --charset.'
     )
 
     return parser
@@ -442,7 +596,22 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
 
-    # Validate input file
+    # Handle --list-charsets
+    if args.list_charsets:
+        print("Available character sets:\n")
+        for name in sorted(CharacterSets.get_all_sets().keys()):
+            desc = CharacterSets.get_set_description(name)
+            print(f"  {name:20s} - {desc}")
+        print("\nUsage: --charset <name>")
+        sys.exit(0)
+
+    # Validate input file is provided
+    if not args.input:
+        print("Error: Input file is required", file=sys.stderr)
+        print("Run with --help for usage information", file=sys.stderr)
+        sys.exit(1)
+
+    # Validate input file exists
     input_path = Path(args.input)
     if not input_path.exists():
         print(f"Error: Input file not found: {input_path}", file=sys.stderr)
@@ -464,8 +633,15 @@ def main():
         bold_enabled=not args.no_bold,
     )
 
+    # Set character set (priority: --chars > --charset > default)
     if args.chars:
         config.char_set = args.chars
+        # Custom chars use default font (charset_name stays "ascii")
+    elif args.charset:
+        char_sets = CharacterSets.get_all_sets()
+        config.char_set = char_sets[args.charset]
+        config.charset_name = args.charset  # Set charset name for font selection
+        print(f"Using character set: {args.charset} - {CharacterSets.get_set_description(args.charset)}")
 
     # Generate ASCII art
     generator = ASCIIPhotoMask(config)
