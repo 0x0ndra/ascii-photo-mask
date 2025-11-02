@@ -7,16 +7,19 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="ascii-photo-mask",
-    version="1.0.0",
-    author="ASCII Photo Mask Contributors",
+    version="1.1.0",
+    author="0x0ndra",
+    author_email="ondra.vlasek@gmail.com",
     description="Transform photos into stunning ASCII art where images shine through character-shaped masks",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/0x0ndra/ascii-photo-mask",
-    py_modules=["ascii_art"],
+    py_modules=["ascii_art", "web_interface"],
     python_requires=">=3.7",
     install_requires=[
         "Pillow>=10.0.0",
+        "gradio>=5.0.0",
+        "python-dotenv>=1.0.0",
     ],
     entry_points={
         "console_scripts": [
