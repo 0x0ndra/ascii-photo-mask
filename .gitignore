@@ -147,3 +147,10 @@ flagged/
 !examples/*.png
 !examples/*.jpg
 !examples/*.jpeg
+
+# Deployment files (server-specific)
+nginx-config.conf
+*.service
+start.sh
+DEPLOYMENT.md
+CLAUDE.md
