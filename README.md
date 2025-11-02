@@ -17,13 +17,14 @@ Transform your photos into stunning ASCII art where the image shines through cha
 
 ## ✨ Features
 
-- **Photo-Through-Characters**: Unlike traditional ASCII art converters that output text, this creates actual images where your photo is visible only through ASCII character shapes
-- **Cross-Platform**: Works on macOS, Linux, and Windows with automatic font detection
-- **Configurable Everything**: Control character size, density, brightness, contrast, and more
-- **Organic Randomization**: Optional character size variation and position jitter for a hand-crafted look
-- **Bold Characters**: Thick, prominent characters for better visibility
-- **Multiple Presets**: From highly detailed small characters to large poster-style output
-- **Zero Hardcoded Paths**: Clean, portable code following best practices
+- 🖥️ **Beautiful Web Interface**: Drag-and-drop UI with real-time preview (Gradio-powered)
+- 🎨 **Photo-Through-Characters**: Unlike traditional ASCII art converters that output text, this creates actual images where your photo is visible only through ASCII character shapes
+- 💻 **Cross-Platform**: Works on macOS, Linux, and Windows with automatic font detection
+- ⚙️ **Configurable Everything**: Control character size, density, brightness, contrast, and more
+- 🎲 **Organic Randomization**: Optional character size variation and position jitter for a hand-crafted look
+- 💪 **Bold Characters**: Thick, prominent characters for better visibility
+- 🎯 **Multiple Presets**: From highly detailed small characters to large poster-style output
+- 🧹 **Zero Hardcoded Paths**: Clean, portable code following best practices
 
 ## 🚀 Quick Start
 
@@ -38,7 +39,26 @@ cd ascii-photo-mask
 pip install -r requirements.txt
 ```
 
-### Basic Usage
+### Usage Options
+
+#### 🖥️ Web Interface (Recommended)
+
+Launch the beautiful web UI with drag-and-drop interface:
+
+```bash
+python web_interface.py
+```
+
+Then open your browser at `http://localhost:7860`
+
+**Features:**
+- 📤 Drag & drop image upload
+- 🎚️ Interactive sliders for all settings
+- 🎯 Quick preset buttons (Detailed, Medium, Poster)
+- 👁️ Real-time preview
+- 💾 Download results directly
+
+#### ⌨️ Command Line
 
 ```bash
 # Generate ASCII art with default settings

@@ -138,6 +138,10 @@ test_images/
 output/
 *_ascii_art.png
 
+# Gradio cache
+gradio_cached_examples/
+flagged/
+
 # Allow examples folder
 !examples/
 !examples/*.png
