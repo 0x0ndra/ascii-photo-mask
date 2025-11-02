@@ -89,12 +89,17 @@ def process_image(
 Before submitting a pull request, test your changes with various configurations:
 
 ```bash
-# Test basic functionality
+# Test web interface
+python3 web_interface.py
+# Then test in browser at http://localhost:7860
+
+# Test CLI basic functionality
 python3 ascii_art.py test_image.jpg
 
-# Test different sizes
-python3 ascii_art.py test_image.jpg -w 40 -s 55
-python3 ascii_art.py test_image.jpg -w 120 -s 18
+# Test presets (Detailed, Medium, Bold)
+python3 ascii_art.py test_image.jpg -w 120 -s 18  # Detailed
+python3 ascii_art.py test_image.jpg -w 60 -s 30   # Medium
+python3 ascii_art.py test_image.jpg -w 40 -s 55   # Bold
 
 # Test randomization toggle
 python3 ascii_art.py test_image.jpg --no-random
@@ -116,14 +121,22 @@ python3 ascii_art.py test_image.jpg -b 2.0 -c 1.5
 ## Project Structure
 
 ```
-ascii_photo_mask/
-├── ascii_art.py          # Main script
+ascii-photo-mask/
+├── ascii_art.py          # Core algorithm (CLI)
+├── web_interface.py      # Web UI (Gradio)
 ├── README.md             # Project documentation
 ├── CONTRIBUTING.md       # This file
 ├── LICENSE               # MIT License
 ├── requirements.txt      # Python dependencies
+├── setup.py              # Package setup
 ├── .gitignore           # Git ignore rules
-└── examples/            # Example outputs (not in repo)
+├── .env.example         # Environment config template
+├── DEPLOYMENT.example.md # Deployment guide template
+└── examples/            # Example images (before/after)
+    ├── before.jpeg
+    ├── after.png
+    ├── example_original.jpg
+    └── example_output.png
 ```
 
 ## Development Setup
@@ -174,4 +187,4 @@ Feel free to open an issue with the "question" label if you have any questions a
 
 ---
 
-Thank you for contributing! 🎉
+Thank you for contributing!
